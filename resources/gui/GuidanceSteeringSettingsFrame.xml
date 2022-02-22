@@ -104,13 +104,16 @@
 
             <GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" size="390px 250px">
                 <GuiElement type="flowLayout" profile="ingameMenuSettingsLayout" size="390px 83px">
-                    <GuiElement type="button" profile="guidanceButtonDetailRight"
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"
                                 onClick="onClickIncrementWidth"
                                 id="guidanceSteeringPlusButton"/>
-                    <GuiElement type="button" profile="guidanceButtonDetailLeft"
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"                    
                                 onClick="onClickDecrementWidth"
                                 id="guidanceSteeringMinusButton"/>
-                    <GuiElement type="button" profile="guidanceButtonDetailLeft"
+                    <GuiElement type="textInput" profile="guidanceTextInputDetail"
+                                onTextChanged="onWidthChanged"
+                                id="guidanceSteeringWidthInput"/>
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"
                                 onClick="onClickResetWidth"
                                 id="guidanceSteeringResetWidthButton"/>
                 </GuiElement>
@@ -145,13 +148,16 @@
 
             <GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" size="390px 250px">
                 <GuiElement type="flowLayout" profile="ingameMenuSettingsLayout" size="390px 83px">
-                    <GuiElement type="button" profile="guidanceButtonDetailRight"
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"
                                 onClick="onClickIncrementOffsetWidth"
                                 id="guidanceSteeringPlusOffsetButton"/>
-                    <GuiElement type="button" profile="guidanceButtonDetailLeft"
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"
                                 onClick="onClickDecrementOffsetWidth"
                                 id="guidanceSteeringMinusOffsetButton"/>
-                    <GuiElement type="button" profile="guidanceButtonDetailLeft"
+                    <GuiElement type="textInput" profile="guidanceTextInputDetail"
+                                onTextChanged="onOffsetWidthChanged"
+                                id="guidanceSteeringOffsetWidthInput"/>                              
+                    <GuiElement type="button" profile="guidanceButtonDetailNormal"
                                 onClick="onClickResetOffsetWidth"
                                 id="guidanceSteeringResetOffsetButton"/>
                 </GuiElement>

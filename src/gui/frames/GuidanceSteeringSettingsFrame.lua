@@ -17,6 +17,7 @@ GuidanceSteeringSettingsFrame.CONTROLS = {
     WIDTH_RESET = "guidanceSteeringResetWidthButton",
     WIDTH_INCREMENT = "guidanceSteeringWidthIncrementElement",
     WIDTH_TEXT = "guidanceSteeringWidthText",
+    WIDTH_INPUT = "guidanceSteeringWidthInput",
 
     OFFSET_DISPLAY = "offsetDisplay",
     OFFSET_PLUS = "guidanceSteeringMinusOffsetButton",
@@ -24,6 +25,7 @@ GuidanceSteeringSettingsFrame.CONTROLS = {
     OFFSET_RESET = "guidanceSteeringResetOffsetButton",
     OFFSET_INCREMENT = "guidanceSteeringOffsetIncrementElement",
     OFFSET_TEXT = "guidanceSteeringOffsetWidthText",
+    OFFSET_INPUT = "guidanceSteeringOffsetWidthInput",
 
     HEADLAND_DISPLAY = "headlandDisplay",
     HEADLAND_MODE = "guidanceSteeringHeadlandModeElement",
@@ -79,11 +81,10 @@ function GuidanceSteeringSettingsFrame:initialize()
 
     self.guidanceSteeringHeadlandModeElement:setTexts(headlandModes)
 
-    local initialUnit = self:getFormattedUnitLength(0)
     self.guidanceSteeringHeadlandDistanceElement:setText(tostring(0))
-    self.guidanceSteeringWidthText:setText(initialUnit)
-    self.guidanceSteeringOffsetWidthText:setText(initialUnit)
-
+    
+    self:changeWidth(0)
+    self:changeOffsetWidth(0)
 
     self:build()
 end
@@ -115,11 +116,9 @@ function GuidanceSteeringSettingsFrame:onFrameOpen()
         self.guidanceSteeringSnapAngleElement:setIsChecked(g_currentMission.guidanceSteering:isTerrainAngleSnapEnabled())
         self.guidanceSteeringEnableSteeringElement:setIsChecked(spec.guidanceSteeringIsActive)
         self.guidanceSteeringAutoInvertOffsetElement:setIsChecked(spec.autoInvertOffset)
-
-        self.currentGuidanceWidth = data.width
-        self.currentGuidanceOffset = data.offsetWidth
-        self.guidanceSteeringWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceWidth))
-        self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
+        
+        self:changeWidth(data.width)
+        self:changeOffsetWidth(data.offsetWidth)
 
         local currentHeadlandActDistance = spec.headlandActDistance
         self.guidanceSteeringHeadlandModeElement:setState(spec.headlandMode)
@@ -225,16 +224,21 @@ end
 ---Callbacks
 
 function GuidanceSteeringSettingsFrame:onClickIncrementWidth()
-    self:changeWidth(1)
+    self:changeWidthInDirection(1)
 end
 
 function GuidanceSteeringSettingsFrame:onClickDecrementWidth()
-    self:changeWidth(-1)
+    self:changeWidthInDirection(-1)
+end
+
+function GuidanceSteeringSettingsFrame:onWidthChanged(_, text)
+    if string.sub(text,#text) ~= "." then
+        self:changeWidth(tonumber(text) or 0);
+    end
 end
 
 function GuidanceSteeringSettingsFrame:onClickResetWidth()
-    self.currentGuidanceWidth = 0
-    self.guidanceSteeringWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceWidth))
+    self:changeWidth(0)
 end
 
 function GuidanceSteeringSettingsFrame:onClickAutoWidth()
@@ -243,54 +247,65 @@ function GuidanceSteeringSettingsFrame:onClickAutoWidth()
     if vehicle ~= nil then
         local spec = vehicle.spec_globalPositioningSystem
         local width, offset = GlobalPositioningSystem.getActualWorkWidth(spec.guidanceNode, vehicle)
-        self.currentGuidanceWidth = width
-        self.currentGuidanceOffset = offset
-        self.guidanceSteeringWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceWidth))
-        self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
+
+        self:changeWidth(width)        
+        self:changeOffsetWidth(offset)
 
         self:updateOffsetUVs()
     end
 end
 
-function GuidanceSteeringSettingsFrame:changeWidth(direction)
+function GuidanceSteeringSettingsFrame:changeWidthInDirection(direction)    
     local state = self.guidanceSteeringWidthIncrementElement:getState()
     local increment = GuidanceSteeringSettingsFrame.INCREMENTS[state] * direction
+    self:changeWidth(self.currentGuidanceWidth + increment)
+end
 
-    self.currentGuidanceWidth = math.max(self.currentGuidanceWidth + increment, 0)
+function GuidanceSteeringSettingsFrame:changeWidth(newWidth)
+    self.currentGuidanceWidth = math.max(newWidth, 0)
     if 2 * math.abs(self.currentGuidanceOffset) >= self.currentGuidanceWidth then
-        self.currentGuidanceOffset = self.currentGuidanceWidth / 2 * (self.currentGuidanceOffset / math.abs(self.currentGuidanceOffset))
+        local newOffset = self.currentGuidanceWidth / 2 * (self.currentGuidanceOffset / math.abs(self.currentGuidanceOffset))
+        self:changeOffsetWidth(newOffset)
     end
-    self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
     self.guidanceSteeringWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceWidth))
+    self.guidanceSteeringWidthInput:setText(tostring(self.currentGuidanceWidth))
 end
 
 function GuidanceSteeringSettingsFrame:onClickIncrementOffsetWidth()
-    self:changeOffsetWidth(1)
+    self:changeOffsetWidthInDirection(1)
 end
 
 function GuidanceSteeringSettingsFrame:onClickDecrementOffsetWidth()
-    self:changeOffsetWidth(-1)
+    self:changeOffsetWidthInDirection(-1)
 end
 
 function GuidanceSteeringSettingsFrame:onClickInvertOffset()
-    self.currentGuidanceOffset = -self.currentGuidanceOffset
-    self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
+    self:changeOffsetWidth(-self.currentGuidanceOffset)    
     self:updateOffsetUVs()
 end
 
 function GuidanceSteeringSettingsFrame:onClickResetOffsetWidth()
-    self.currentGuidanceOffset = 0
-    self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
+    self:changeOffsetWidth(0)
 end
 
-function GuidanceSteeringSettingsFrame:changeOffsetWidth(direction)
+function GuidanceSteeringSettingsFrame:onOffsetWidthChanged(_, text)
+    if string.sub(text,#text) ~= "." then
+        self:changeOffsetWidth(tonumber(text) or 0);
+    end
+end
+
+function GuidanceSteeringSettingsFrame:changeOffsetWidthInDirection(direction)
     local state = self.guidanceSteeringOffsetIncrementElement:getState()
-    local increment = GuidanceSteeringSettingsFrame.INCREMENTS[state] * direction
+    local increment = GuidanceSteeringSettingsFrame.INCREMENTS[state] * direction    
+    self:changeOffsetWidth(self.currentGuidanceOffset + increment)
+end
 
+function GuidanceSteeringSettingsFrame:changeOffsetWidth(newOffset)
     local threshold = self.currentGuidanceWidth * 0.5
-    self.currentGuidanceOffset = MathUtil.clamp(self.currentGuidanceOffset + increment, -threshold, threshold)
+    newOffset = MathUtil.clamp(newOffset~=newOffset and 0 or newOffset, -threshold, threshold)
+    self.currentGuidanceOffset = newOffset
     self.guidanceSteeringOffsetWidthText:setText(self:getFormattedUnitLength(self.currentGuidanceOffset))
-
+    self.guidanceSteeringOffsetWidthInput:setText(tostring(self.currentGuidanceOffset))   
     self:updateOffsetUVs()
 end
 

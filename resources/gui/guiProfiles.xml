@@ -245,6 +245,26 @@
         <Value name="iconTextOffset" value="10px 0px" />
     </Profile>
 
+    <Profile name="guidanceButtonDetailNormal" extends="guidanceButtonDetail">
+        <Value name="margin" value="15px 15px 5px 15px" />
+        <Value name="textOffset" value="-5px 0px" />
+        <Value name="size" value="50px 50px" />
+        <Value name="iconSize" value="50px 50px" />
+        <Value name="iconTextOffset" value="10px 0px" />
+    </Profile>
+    
+    <Profile name="guidanceTextInputDetail" extends="ingameMenuGameSettingsTextInput">
+        <Value name="margin" value="15px 15px 5px 15px" />
+        <Value name="textOffset" value="-5px 0px" />
+        <Value name="size" value="105px 50px" />
+        <!-- <Value name="textSize" value="16px" />
+        <Value name="textBold" value="true" /> -->
+        <Value name="position" value="0px 0px" />
+        <Value name="textAlignment" value="center" />
+        <Value name="textVerticalAlignment" value="middle" />
+
+    </Profile>
+
     <Profile name="guidanceButtonSmallLeft" extends="guidanceButton">
         <Value name="size" value="156px 45px" />
         <Value name="margin" value="30px 12.5px 2px 12.5px" />
